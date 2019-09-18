@@ -1,0 +1,112 @@
+{% extends "template.html" %}
+{% block content %}
+	<div class="jumbo">
+		<h2>Tatto image Testing</h2>
+	</div>
+    <div class="container">
+		<div class="row upload_area">
+			<div class="col-md-12">
+				<div class="col-md-3">
+					<div class="upload-btn-wrapper">
+					  	<button class="btn_upload">Upload</button>
+						<input type='file' name="imageToUpload" onchange="readURL(this);" id="image1" accept="image/*"/>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<button class="btn-info btn_process" id="process" onclick="ProcessImage();">Test</button>
+				</div>
+				<div class="col-md-3">
+					<div class="upload-btn-wrapper">
+					  	<button class="btn_upload" id = "btn_save">Save</button>
+					</div>
+				</div>
+					
+			</div>
+			<!-- <div class="col-md-9"></div> -->
+		</div>
+		<br/><br/>
+		<div class="col-md-12">
+            <div class="col-md-6">
+                <img id="blah" src="" style="height: 600px" alt=""/>
+            </div>
+            <div class="col-md-6">
+                <img id="blah12" src="" style="height:600px" alt=""/>
+            </div>
+        </div>
+
+	</div>
+	<script>
+		$('#btn_save').click(function(){
+			var a  = document.createElement('a');
+		    a.href = "/static/output.png";
+		    a.download = 'output.png';
+		    a.click()
+		});
+		var fileNode1 = document.querySelector('#image1');
+		fileNode1.addEventListener('change', function( event ) {
+			event.preventDefault();
+			var xhr1 = new XMLHttpRequest();
+			var form = new FormData();
+			var files = this.files;
+			var obj = this;
+			for (var i = 0, numFiles = files.length; i < numFiles; i++) {
+				var file = files[i];
+
+				// check mime
+				if (['image/png', 'image/jpg'].indexOf(file.type) == -1) {
+					// mime type error handling
+				}
+
+				form.append('file', file, file.name);				
+			}
+			xhr1.onload = function() {
+				if (xhr1.status === 200) {
+					console.log("success");
+				}
+			}
+			xhr1.open('POST', '/upload_test');
+			xhr1.onload  = function() {
+			   var jsonResponse = xhr1.response;
+			   console.log(jsonResponse);
+			};
+			xhr1.send(form);
+		});
+
+		function readURL(input) {
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {						
+						$('#blah')
+							.attr('src', e.target.result)
+					};
+
+					reader.readAsDataURL(input.files[0]);
+				}
+			}
+		function ProcessImage(){
+			$(".loader").css("display", "block");
+			$.ajax({
+				url: '/test_process',
+				type: 'POST',
+				success: function(response) {						
+					console.log(response);
+					$('#blah12')
+							.attr('src', "/static/output.png");
+					$(".loader").css("display", "none");
+				},
+				error: function(error) {
+					console.log(error);
+				}
+			});
+		}
+
+		$(".js-example-tags").select2({
+		  tags: true
+		});
+
+		$(document).ready(()=>{
+			$(".loader").css('display','none');
+		})
+    </script>
+{% endblock %}

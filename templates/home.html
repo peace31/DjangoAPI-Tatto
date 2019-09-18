@@ -1,0 +1,209 @@
+{% extends "template.html" %}
+{% block content %}
+	<div class="jumbo">
+		<h2>Tatto image auto Training</h2>
+	</div>
+    <div class="container">
+		<div class="row upload_area">
+			<div class="col-md-12">
+				<div class = "row">
+					<div class="col-md-3">
+						<div class="upload-btn-wrapper">
+						  	<button class="btn_upload">Source image</button>
+							<input type='file' multiple webkitdirectory name="imageToUpload" onchange="readURL(this);" id="image1" accept="image/*"/>
+						</div>
+					</div>
+					<div class="col-md-9">
+						<div class="progress" style = "margin-top: 15px;">
+		    				<div class="progress-bar" id="tracking1" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;transition-duration: 0.5s;">
+		        				<span style="visibility:hidden">xxxx</span>
+		    				</div>
+  						</div>
+					</div>
+				</div>
+				<div class = "row">
+					<div class="col-md-3">
+						<div class="upload-btn-wrapper">
+						  	<button class="btn_upload">Target image</button>
+							<input type='file' multiple webkitdirectory name="imageToUpload" onchange="readURL1(this);" id="image2" accept="image/*"/>
+						</div>
+					</div>
+					<div class="col-md-9">
+						<div class="progress" style = "margin-top: 15px;">
+		    				<div class="progress-bar" id="tracking2" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;transition-duration: 0.5s;">
+		        				<span style="visibility:hidden">xxxx</span>
+		    				</div>
+  						</div>
+					</div>
+				</div>
+				<div class = "row">
+					<div class="col-md-3">
+						<button class="btn-info btn_process" id="process" onclick="ProcessImage();">Train</button>
+					</div>
+					<div class="col-md-9">
+						<!-- <div class="progress" style = "margin-top: 15px;">
+		    				<div class="progress-bar" id="tracking3" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;transition-duration: 0.5s;">
+		        				<span style="visibility:hidden">xxxx</span>
+		    				</div>
+  						</div> -->
+  						<div class="loader"></div>
+					</div>
+				</div>			
+			</div>
+			<!-- <div class="col-md-9"></div> -->
+		</div>
+		<br/><br/>
+		<div class="col-md-12">
+            <div class="col-md-6">
+                <img id="blah" src="" style="width:100%" alt=""/>
+            </div>
+            <div class="col-md-6">
+                <img id="blah1" src="" style="width:100%" alt=""/>
+            </div>
+        </div>
+
+	</div>
+	<script>
+		var fileNode1 = document.querySelector('#image1');
+		var fileNode2 = document.querySelector('#image2');
+		fileNode2.addEventListener('change', function( event ) {
+			event.preventDefault();
+	        xhr2 = new XMLHttpRequest();
+			// document.getElementById("tracking").style.width = "0%";
+			xhr2.onloadstart = function (e) {
+			    console.log("start");
+	            document.getElementById("tracking2").style.width = "0%";
+			}
+			xhr2.onloadend = function (e) {
+			    console.log("end");
+			}
+			xhr2.upload.onprogress = function(e) 
+		    {
+		    	if (e.lengthComputable) {
+			        console.log(e.loaded +  " / " + e.total);
+			        var percent = 100 * e.loaded / e.total;
+			        document.getElementById("tracking2").style.width = percent + "%";
+			    }
+		        
+		    };
+		    var form = new FormData();
+			var files = this.files;
+			var obj = this;
+			for (var i = 0, numFiles = files.length; i < numFiles; i++) {
+				var file = files[i];
+
+				// check mime
+				if (['image/png', 'image/jpg'].indexOf(file.type) == -1) {
+					// mime type error handling
+				}
+
+				form.append('file' + i, file, file.name);				
+			}
+			xhr2.onload = function() {
+				if (xhr2.status === 200) {
+					console.log("success");
+				}
+			}
+			xhr2.open('POST', '/upload1');
+			xhr2.onload  = function() {
+			   var jsonResponse = xhr2.response;
+			   console.log(jsonResponse);
+			};
+			xhr2.send(form);
+		});
+		function readURL1(input) {
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {						
+						$('#blah1')
+							.attr('src', e.target.result)
+					};
+
+					reader.readAsDataURL(input.files[0]);
+				}
+			}
+		//xhr.responseType = 'json';
+		fileNode1.addEventListener('change', function( event ) {
+			event.preventDefault();
+			var xhr1 = new XMLHttpRequest();	  
+			xhr1.onloadstart = function (e) {
+			    console.log("start");
+	            document.getElementById("tracking1").style.width = "0%";
+			}
+			xhr1.onloadend = function (e) {
+			    console.log("end");
+			    document.getElementById("tracking1").style.width = "100%";
+			}
+			// event.preventDefault();
+			xhr1.upload.onprogress = function(e) 
+		    {
+		    	if (e.lengthComputable) {
+			        console.log(e.loaded +  " / " + e.total);
+			        var percent = 100 * e.loaded / e.total;
+			        document.getElementById("tracking1").style.width = percent + "%";
+			    }
+		        
+		    };
+			var form = new FormData();
+			var files = this.files;
+			var obj = this;
+			for (var i = 0, numFiles = files.length; i < numFiles; i++) {
+				var file = files[i];
+
+				// check mime
+				if (['image/png', 'image/jpg'].indexOf(file.type) == -1) {
+					// mime type error handling
+				}
+
+				form.append('file' + i, file, file.name);				
+			}
+			xhr1.onload = function() {
+				if (xhr1.status === 200) {
+					console.log("success");
+				}
+			}
+			xhr1.open('POST', '/upload');
+			xhr1.onload  = function() {
+			   var jsonResponse = xhr1.response;
+			   console.log(jsonResponse);
+			};
+			xhr1.send(form);
+		});
+
+		function readURL(input) {
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {						
+						$('#blah')
+							.attr('src', e.target.result)
+					};
+
+					reader.readAsDataURL(input.files[0]);
+				}
+			}
+		function ProcessImage(){
+			$(".loader").css("display", "block");
+			$.ajax({
+				url: '/process',
+				type: 'POST',
+				success: function(response) {						
+					console.log("success");
+					$(".loader").css("display", "none");
+				},
+				error: function(error) {
+					console.log(error);
+				}
+			});
+		}
+
+		$(".js-example-tags").select2({
+		  tags: true
+		});
+
+		$(document).ready(()=>{
+			$(".loader").css('display','none');
+		})
+    </script>
+{% endblock %}
